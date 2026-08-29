@@ -1,0 +1,28 @@
+services:
+  san-maldito:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: san-maldito-web
+    restart: unless-stopped
+    ports:
+      - "${SAN_MALDITO_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: "file:../data/sanmaldito.db"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Definir ADMIN_PASSWORD en .env}"
+      AUTH_SECRET: "${AUTH_SECRET:?Definir AUTH_SECRET en .env}"
+      NEXT_PUBLIC_SITE_URL: "${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}"
+      UPLOAD_DIR: "/app/public/uploads"
+    volumes:
+      - san-maldito-data:/app/data
+      - san-maldito-uploads:/app/public/uploads
+    networks:
+      - san-maldito
+
+volumes:
+  san-maldito-data:
+  san-maldito-uploads:
+
+networks:
+  san-maldito:
+    driver: bridge
