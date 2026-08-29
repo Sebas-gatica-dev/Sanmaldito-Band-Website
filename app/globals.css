@@ -27,7 +27,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .site-header nav { display: flex; align-items: center; gap: 32px; }
 .site-header nav a { text-transform: uppercase; letter-spacing: .18em; font: 700 10px var(--display); color: #aaa69e; transition: color .2s; }
 .site-header nav a:hover { color: #fff; }
-.site-header nav .admin-link { border: 1px solid var(--line); padding: 11px 17px; }
 .menu-button { display: none; color: var(--paper); border: 0; background: none; }
 
 .hero { --mx: 0px; --my: 0px; min-height: 100svh; position: relative; isolation: isolate; display: flex; align-items: center; padding: 120px 8vw 80px; overflow: hidden; background: #050505; }

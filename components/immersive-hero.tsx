@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, Play } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 type Props = {
   eyebrow: string;
@@ -31,14 +32,14 @@ export function ImmersiveHero({ eyebrow, title, subtitle, image }: Props) {
   return (
     <section className="hero" ref={root}>
       <div className="hero-image" aria-hidden="true">
-        <Image src={image} alt="" fill priority sizes="100vw" />
+        <Image src={withBasePath(image)} alt="" fill priority sizes="100vw" />
       </div>
       <div className="hero-vignette" />
       <div className="hero-smoke hero-smoke-one" />
       <div className="hero-smoke hero-smoke-two" />
       <div className="hero-copy">
         <p className="eyebrow"><span />{eyebrow}</p>
-        <Image className="hero-logo" src="/branding/logo-official.png" width={1448} height={1086} alt="San Maldito" priority />
+        <Image className="hero-logo" src={withBasePath("/branding/logo-official.png")} width={1448} height={1086} alt="San Maldito" priority />
         <h1>{title}</h1>
         <p className="hero-subtitle">{subtitle}</p>
         <div className="hero-actions">

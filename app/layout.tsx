@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AudioProvider } from "@/components/audio-player";
+import { withBasePath } from "@/lib/base-path";
 
 export const metadata: Metadata = {
   title: { default: "San Maldito — Death Metal Argentino", template: "%s — San Maldito" },
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "San Maldito",
     description: "Nadie sale santo de esta tierra.",
-    images: ["/branding/san-maldito-character.png"],
+    images: [withBasePath("/branding/san-maldito-character.png")],
   },
 };
 

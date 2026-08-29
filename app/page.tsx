@@ -8,6 +8,7 @@ import { ThornRule } from "@/components/icons";
 import { TrackList } from "@/components/track-list";
 import { SiteFooter } from "@/components/site-footer";
 import type { PublicTrack } from "@/types/content";
+import { withBasePath } from "@/lib/base-path";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function Home() {
 
       <section className="manifesto-section" id="manifiesto">
         <div className="manifesto-art" aria-hidden="true">
-          <Image src="/branding/emblem-etched.png" width={1254} height={1254} alt="" />
+          <Image src={withBasePath("/branding/emblem-etched.png")} width={1254} height={1254} alt="" />
         </div>
         <div className="manifesto-index">I / EL CULTO</div>
         <div className="manifesto-copy">
@@ -72,11 +73,11 @@ export default async function Home() {
         {featured ? (
           <div className="featured-album">
             <Link href={`/discografia/${featured.slug}`} className="album-cover-wrap">
-              <Image src={featured.coverImage} width={1122} height={1402} alt={`Portada de ${featured.title}`} />
+              <Image src={withBasePath(featured.coverImage)} width={1122} height={1402} alt={`Portada de ${featured.title}`} />
               <span className="album-stamp">Primer álbum<br />San Maldito</span>
             </Link>
             <div className="album-content">
-              <div className="album-meta"><span>{featured.status === "production" ? "En producción" : featured.status}</span><i /> <span>{featured.tracks.length} canciones</span></div>
+              <div className="album-meta"><span>{featured.status === "production" ? "En producción" : featured.status}</span><i /> <span>{featured.tracks.length ? `${featured.tracks.length} canciones` : "Canciones por publicar"}</span></div>
               <h3>{featured.title}</h3>
               <p className="album-description">{featured.description}</p>
               {featured.manifesto && <blockquote>“{featured.manifesto}”</blockquote>}
@@ -92,8 +93,8 @@ export default async function Home() {
           <div className="album-grid">
             {albums.filter((album) => album.id !== featured?.id).map((album) => (
               <Link href={`/discografia/${album.slug}`} key={album.id} className="album-card">
-                <Image src={album.coverImage} width={600} height={600} alt="" />
-                <h3>{album.title}</h3><span>{album.tracks.length} canciones</span>
+                <Image src={withBasePath(album.coverImage)} width={600} height={600} alt="" />
+                <h3>{album.title}</h3><span>{album.tracks.length ? `${album.tracks.length} canciones` : "Canciones por publicar"}</span>
               </Link>
             ))}
           </div>
@@ -108,7 +109,7 @@ export default async function Home() {
         <div className="news-grid">
           {news.map((item, index) => (
             <article className={`news-card ${index === 0 ? "news-card-featured" : ""}`} key={item.id}>
-              {item.image && <div className="news-image"><Image src={item.image} fill sizes={index === 0 ? "66vw" : "33vw"} alt="" /></div>}
+              {item.image && <div className="news-image"><Image src={withBasePath(item.image)} fill sizes={index === 0 ? "66vw" : "33vw"} alt="" /></div>}
               <div className="news-body">
                 <div className="news-meta"><span>{item.kind}</span><time><CalendarDays size={13} />{dateLabel(item.eventDate, item.createdAt)}</time></div>
                 <h3>{item.title}</h3>
@@ -121,7 +122,7 @@ export default async function Home() {
       </section>
 
       <section className="closing-section">
-        <Image src="/branding/logo-official.png" width={1448} height={1086} alt="San Maldito" />
+        <Image src={withBasePath("/branding/logo-official.png")} width={1448} height={1086} alt="San Maldito" />
         <p>Sin salvador. Sin dueño.<br />Sólo la obra.</p>
       </section>
       <SiteFooter />

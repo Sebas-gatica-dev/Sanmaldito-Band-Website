@@ -1,0 +1,36 @@
+name: san-maldito-web
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-/san-maldito-web}"
+    container_name: san-maldito-web
+    restart: unless-stopped
+    init: true
+    expose:
+      - "3000"
+    environment:
+      DATABASE_URL: "postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST:-sgdev-postgres}:${DATABASE_PORT:-5432}/${DATABASE_NAME}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Definir ADMIN_PASSWORD}"
+      AUTH_SECRET: "${AUTH_SECRET:?Definir AUTH_SECRET}"
+      NEXT_PUBLIC_SITE_URL: "${NEXT_PUBLIC_SITE_URL:-https://sgdev.com.ar/san-maldito-web}"
+      NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-/san-maldito-web}"
+      UPLOAD_DIR: "/app/public/uploads"
+    volumes:
+      - "${SAN_MALDITO_UPLOADS_DIR:-./storage/uploads}:/app/public/uploads"
+    networks:
+      proxy:
+        aliases:
+          - san-maldito-web
+      data:
+
+networks:
+  proxy:
+    external: true
+    name: sgdev-proxy
+  data:
+    external: true
+    name: sgdev-data

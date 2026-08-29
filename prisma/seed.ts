@@ -18,15 +18,6 @@ async function main() {
       status: "production",
       featured: true,
       sortOrder: 1,
-      tracks: {
-        create: [
-          { title: "La Procesión", trackNumber: 1, published: true, description: "El paso de una multitud sin nombre." },
-          { title: "Camino de Servidumbre", trackNumber: 2, published: true, description: "La herencia del sacrificio y el despertar de la furia." },
-          { title: "Masa Dormida", trackNumber: 3, published: true, description: "Sobrevivir para atestiguar la esclavitud." },
-          { title: "Entierro un Sueño", trackNumber: 4, published: true, description: "Todo ascenso exige una despedida." },
-          { title: "Nunca Más", trackNumber: 5, published: true, description: "Ya no queda piedad para quien vive de los demás." },
-        ],
-      },
     },
   });
 

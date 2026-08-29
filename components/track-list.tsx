@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Heart, MessageCircle, Pause, Play, Send, Share2 } from "lucide-react";
 import { useAudio } from "@/components/audio-player";
 import type { PublicTrack } from "@/types/content";
+import { withBasePath } from "@/lib/base-path";
 
 function visitorId() {
   const key = "sanmaldito_visitor";
@@ -16,7 +17,7 @@ function visitorId() {
 }
 
 export function TrackList({ tracks }: { tracks: PublicTrack[] }) {
-  if (!tracks.length) return <p className="empty-state">Todavía no hay canciones publicadas en este proyecto.</p>;
+  if (!tracks.length) return <p className="empty-state">Las canciones se publicarán próximamente.</p>;
   return <div className="track-list">{tracks.map((track) => <TrackRow key={track.id} track={track} />)}</div>;
 }
 
@@ -32,19 +33,19 @@ function TrackRow({ track }: { track: PublicTrack }) {
 
   useEffect(() => {
     if (!commentsOpen) return;
-    fetch(`/api/tracks/${track.id}/comments`).then((r) => r.json()).then(setComments).catch(() => undefined);
+    fetch(withBasePath(`/api/tracks/${track.id}/comments`)).then((r) => r.json()).then(setComments).catch(() => undefined);
   }, [commentsOpen, track.id]);
 
   useEffect(() => {
     const id = visitorId();
-    fetch(`/api/tracks/${track.id}/like?visitorId=${encodeURIComponent(id)}`)
+    fetch(withBasePath(`/api/tracks/${track.id}/like?visitorId=${encodeURIComponent(id)}`))
       .then((response) => response.json())
       .then((data) => { setLikes(data.count); setLiked(data.liked); })
       .catch(() => undefined);
   }, [track.id]);
 
   async function like() {
-    const response = await fetch(`/api/tracks/${track.id}/like`, {
+    const response = await fetch(withBasePath(`/api/tracks/${track.id}/like`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ visitorId: visitorId() }),
@@ -59,7 +60,7 @@ function TrackRow({ track }: { track: PublicTrack }) {
   async function comment(event: React.FormEvent) {
     event.preventDefault();
     if (!author.trim() || !body.trim()) return;
-    const response = await fetch(`/api/tracks/${track.id}/comments`, {
+    const response = await fetch(withBasePath(`/api/tracks/${track.id}/comments`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ author, body }),

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ADMIN_COOKIE, expectedToken, passwordIsValid } from "@/lib/auth";
+import { BASE_PATH } from "@/lib/base-path";
 
 export async function POST(request: Request) {
   const { password } = await request.json();
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7,
-    path: "/",
+    path: BASE_PATH || "/",
   });
   return response;
 }

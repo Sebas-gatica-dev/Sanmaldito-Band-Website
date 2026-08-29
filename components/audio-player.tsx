@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import Image from "next/image";
 import { Pause, Play, SkipBack, SkipForward, Volume2, X } from "lucide-react";
 import type { PublicTrack } from "@/types/content";
+import { withBasePath } from "@/lib/base-path";
 
 type AudioContextValue = {
   current: PublicTrack | null;
@@ -72,13 +73,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   return (
     <AudioContext.Provider value={{ current, playing, playTrack, toggle }}>
       {children}
-      <audio ref={audio} src={current?.audioUrl ?? undefined} preload="metadata" />
+      <audio ref={audio} src={current?.audioUrl ? withBasePath(current.audioUrl) : undefined} preload="metadata" />
       {current && (
         <aside className="global-player" aria-label="Reproductor de audio">
           <div className="player-progress" style={{ "--progress": `${duration ? (progress / duration) * 100 : 0}%` } as React.CSSProperties}>
             <input aria-label="Posición" type="range" min={0} max={duration || 0} value={progress} onChange={(e) => { if (audio.current) audio.current.currentTime = Number(e.target.value); }} />
           </div>
-          <Image src={current.coverImage} width={64} height={64} alt="" />
+          <Image src={withBasePath(current.coverImage)} width={64} height={64} alt="" />
           <div className="player-title"><strong>{current.title}</strong><span>{current.albumTitle}</span></div>
           <div className="player-controls">
             <button aria-label="Anterior" disabled><SkipBack size={17} /></button>

@@ -1,7 +1,8 @@
-node_modules
-.next
 .git
+.next
+node_modules
 .env
+.env.*
 data
-public/uploads/*
+storage
 npm-debug.log*

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Album as AlbumIcon, ArrowUpRight, Check, FileAudio, Home, ImageIcon, Loader2, LogOut, Megaphone, Plus, Save, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 type Comment = { id: string; author: string; body: string; createdAt: string };
 type Track = { id: string; title: string; description: string | null; audioUrl: string | null; trackNumber: number; published: boolean; comments: Comment[]; _count: { likes: number } };
@@ -13,7 +14,7 @@ type Content = { albums: Album[]; news: NewsItem[]; settings: Record<string, str
 type Tab = "albums" | "news" | "home";
 
 async function mutate(action: string, id?: string, data?: Record<string, unknown>) {
-  const response = await fetch("/api/admin/mutate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, id, data }) });
+  const response = await fetch(withBasePath("/api/admin/mutate"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, id, data }) });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || "No se pudo completar la acción");
   return result;
@@ -29,7 +30,7 @@ function UploadButton({ kind, onUploaded }: { kind: "image" | "audio"; onUploade
     if (!file) return;
     setLoading(true);
     const data = new FormData(); data.append("file", file);
-    const response = await fetch("/api/admin/upload", { method: "POST", body: data });
+    const response = await fetch(withBasePath("/api/admin/upload"), { method: "POST", body: data });
     const result = await response.json(); setLoading(false);
     if (!response.ok) return alert(result.error);
     onUploaded(result.url);
@@ -50,7 +51,7 @@ export function AdminDashboard() {
   const [message, setMessage] = useState("");
 
   const reload = useCallback(async () => {
-    const response = await fetch("/api/admin/content", { cache: "no-store" });
+    const response = await fetch(withBasePath("/api/admin/content"), { cache: "no-store" });
     if (response.status === 401) return location.reload();
     const data = await response.json();
     setContent(data);
@@ -60,7 +61,7 @@ export function AdminDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/admin/content", { cache: "no-store" })
+    fetch(withBasePath("/api/admin/content"), { cache: "no-store" })
       .then((response) => {
         if (response.status === 401) location.reload();
         return response.json();
@@ -74,7 +75,7 @@ export function AdminDashboard() {
     return () => { cancelled = true; };
   }, []);
   function saved(text = "Cambios guardados") { setMessage(text); setTimeout(() => setMessage(""), 2200); }
-  async function logout() { await fetch("/api/auth/logout", { method: "POST" }); location.reload(); }
+  async function logout() { await fetch(withBasePath("/api/auth/logout"), { method: "POST" }); location.reload(); }
 
   if (!content) return <main className="admin-loading"><Loader2 className="spin" /><span>Abriendo el archivo…</span></main>;
   const album = content.albums.find((item) => item.id === selectedAlbum) ?? null;
@@ -83,7 +84,7 @@ export function AdminDashboard() {
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
-        <div className="admin-brand"><Image src="/branding/emblem-clean.png" width={1254} height={1254} alt="" /><div><strong>San Maldito</strong><span>Archivo privado</span></div></div>
+        <div className="admin-brand"><Image src={withBasePath("/branding/emblem-clean.png")} width={1254} height={1254} alt="" /><div><strong>San Maldito</strong><span>Archivo privado</span></div></div>
         <nav>
           <button className={tab === "albums" ? "active" : ""} onClick={() => setTab("albums")}><AlbumIcon size={17} /> Obras</button>
           <button className={tab === "news" ? "active" : ""} onClick={() => setTab("news")}><Megaphone size={17} /> Novedades</button>
@@ -98,7 +99,7 @@ export function AdminDashboard() {
           <div className="admin-split">
             <aside className="admin-list">
               <button className="admin-new" onClick={async () => { const item = await mutate("createAlbum", undefined, { title: "Nueva obra" }); await reload(); setSelectedAlbum(item.id); }}><Plus size={15} /> Nueva obra</button>
-              {content.albums.map((item) => <button key={item.id} className={item.id === album?.id ? "selected" : ""} onClick={() => setSelectedAlbum(item.id)}><Image src={item.coverImage} width={52} height={52} alt="" /><span><strong>{item.title}</strong><small>{item.status} · {item.tracks.length} canciones</small></span></button>)}
+              {content.albums.map((item) => <button key={item.id} className={item.id === album?.id ? "selected" : ""} onClick={() => setSelectedAlbum(item.id)}><Image src={withBasePath(item.coverImage)} width={52} height={52} alt="" /><span><strong>{item.title}</strong><small>{item.status} · {item.tracks.length} canciones</small></span></button>)}
             </aside>
             {album ? <AlbumEditor key={album.id} album={album} reload={reload} saved={saved} onDeleted={() => setSelectedAlbum(null)} /> : <div className="admin-empty">Creá la primera obra para empezar.</div>}
           </div>
@@ -149,7 +150,7 @@ function AlbumEditor({ album, reload, saved, onDeleted }: { album: Album; reload
 }
 
 function MediaField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
-  return <div className="media-field"><span>{label}</span><div className="media-preview">{value ? <Image src={value} fill sizes="260px" alt="" /> : <ImageIcon />}</div><input value={value} onChange={(e) => onChange(e.target.value)} placeholder="/ruta/imagen.jpg" /><UploadButton kind="image" onUploaded={onChange} /></div>;
+  return <div className="media-field"><span>{label}</span><div className="media-preview">{value ? <Image src={withBasePath(value)} fill sizes="260px" alt="" /> : <ImageIcon />}</div><input value={value} onChange={(e) => onChange(e.target.value)} placeholder="/ruta/imagen.jpg" /><UploadButton kind="image" onUploaded={onChange} /></div>;
 }
 
 function TrackEditor({ track, reload, saved }: { track: Track; reload: () => Promise<void>; saved: (s?: string) => void }) {

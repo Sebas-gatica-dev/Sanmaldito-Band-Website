@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 const links = [
   ["/", "Inicio"],
@@ -26,7 +27,7 @@ export function SiteHeader() {
   return (
     <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
       <Link href="/" className="header-brand" aria-label="San Maldito, inicio">
-        <Image src="/branding/wordmark.png" width={2172} height={724} alt="San Maldito" priority />
+        <Image src={withBasePath("/branding/wordmark.png")} width={2172} height={724} alt="San Maldito" priority />
       </Link>
       <button className="menu-button" onClick={() => setOpen(!open)} aria-label="Abrir menú" aria-expanded={open}>
         {open ? <X /> : <Menu />}
@@ -35,7 +36,6 @@ export function SiteHeader() {
         {links.map(([href, label]) => (
           <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>
         ))}
-        <Link href="/admin" className="admin-link" onClick={() => setOpen(false)}>Acceso</Link>
       </nav>
     </header>
   );

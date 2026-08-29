@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { TrackList } from "@/components/track-list";
 import { ShareButton } from "@/components/share-button";
 import type { PublicTrack } from "@/types/content";
+import { withBasePath } from "@/lib/base-path";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
     <main className="album-page">
       <SiteHeader />
       <section className="album-hero">
-        <div className="album-hero-bg"><Image src={album.heroImage ?? album.coverImage} fill sizes="100vw" alt="" priority /></div>
+        <div className="album-hero-bg"><Image src={withBasePath(album.heroImage ?? album.coverImage)} fill sizes="100vw" alt="" priority /></div>
         <div className="album-hero-shade" />
         <div className="album-hero-content">
           <Link href="/#musica" className="back-link"><ArrowLeft size={14} /> Volver al archivo</Link>
@@ -55,7 +56,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
         </div>
       </section>
       <section className="album-detail">
-        <div className="album-detail-cover"><Image src={album.coverImage} width={1122} height={1402} alt={`Portada de ${album.title}`} /></div>
+        <div className="album-detail-cover"><Image src={withBasePath(album.coverImage)} width={1122} height={1402} alt={`Portada de ${album.title}`} /></div>
         <div className="album-detail-tracks">
           <p className="section-kicker">Listado de canciones</p>
           <h2>El recorrido</h2>

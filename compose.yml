@@ -1,28 +1,50 @@
 services:
-  san-maldito:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sanmaldito
+      POSTGRES_USER: sanmaldito
+      POSTGRES_PASSWORD: sanmaldito-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sanmaldito -d sanmaldito"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - san-maldito-postgres:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  web:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-}"
     container_name: san-maldito-web
     restart: unless-stopped
     ports:
       - "${SAN_MALDITO_PORT:-3000}:3000"
     environment:
-      DATABASE_URL: "file:../data/sanmaldito.db"
+      DATABASE_URL: "postgresql://sanmaldito:sanmaldito-local@db:5432/sanmaldito"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Definir ADMIN_PASSWORD en .env}"
       AUTH_SECRET: "${AUTH_SECRET:?Definir AUTH_SECRET en .env}"
       NEXT_PUBLIC_SITE_URL: "${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}"
+      NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-}"
       UPLOAD_DIR: "/app/public/uploads"
     volumes:
-      - san-maldito-data:/app/data
       - san-maldito-uploads:/app/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
-      - san-maldito
+      - internal
 
 volumes:
-  san-maldito-data:
+  san-maldito-postgres:
   san-maldito-uploads:
 
 networks:
-  san-maldito:
-    driver: bridge
+  internal:
+    internal: true
