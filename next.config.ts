@@ -6,8 +6,8 @@ const basePath = configuredBasePath
   : "";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   basePath,
+  trailingSlash: true,
   images: { unoptimized: true },
   serverExternalPackages: ["@prisma/client"],
 };
