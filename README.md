@@ -62,3 +62,18 @@ La base PostgreSQL y su rol se asignan con `SgInfra/scripts/shared-db-admin.py`;
 - Contenido inicial: `prisma/seed.ts` crea el álbum y los textos base sin crear canciones.
 
 Antes de cambios de infraestructura se debe respaldar la base con `pg_dump` y el directorio de cargas con el mecanismo de backup de SgInfra.
+
+## CI y despliegue centralizado
+
+El workflow `.github/workflows/ci.yml` ejecuta lint, build y validación de
+`compose.sgdev.yml`. Después de un push válido a `main`, notifica a `SgInfra`
+con el target `san-maldito-web`. Configurar `SGINFRA_DISPATCH_TOKEN` como secret
+del repositorio para activar el dispatch.
+
+```bash
+cd /opt/sgdev-infra
+./scripts/app-deploy.sh san-maldito-web --operation deploy-latest
+./scripts/app-healthcheck.sh san-maldito-web --require-public-url
+```
+
+La URL pública es `https://sgdev.com.ar/san-maldito-web/`.

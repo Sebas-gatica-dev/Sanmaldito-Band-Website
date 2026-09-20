@@ -1,0 +1,61 @@
+name: San Maldito CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - name: Build production site
+        env:
+          DATABASE_URL: postgresql://build:build@127.0.0.1:5432/build
+          NEXT_PUBLIC_BASE_PATH: /san-maldito-web
+        run: npm run build
+      - name: Validate production Compose
+        env:
+          DATABASE_USER: build
+          DATABASE_PASSWORD: build
+          DATABASE_NAME: build
+          ADMIN_PASSWORD: build-only
+          AUTH_SECRET: build-only-secret
+        run: docker compose -f compose.sgdev.yml config --quiet
+
+  deploy-production:
+    name: Notify SgInfra
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch production deployment
+        env:
+          SGINFRA_DISPATCH_TOKEN: ${{ secrets.SGINFRA_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "$SGINFRA_DISPATCH_TOKEN" ]; then
+            echo "::notice::SGINFRA_DISPATCH_TOKEN is not configured; production dispatch skipped"
+            exit 0
+          fi
+          payload="$(jq -nc \
+            --arg target san-maldito-web \
+            --arg operation deploy-latest \
+            --arg source_repository "$GITHUB_REPOSITORY" \
+            --arg source_sha "$GITHUB_SHA" \
+            '{event_type:"deploy-production",client_payload:{target:$target,operation:$operation,source_repository:$source_repository,source_sha:$source_sha}}')"
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer $SGINFRA_DISPATCH_TOKEN" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/Sebas-gatica-dev/sgdev-infra/dispatches \
+            --data "$payload"
